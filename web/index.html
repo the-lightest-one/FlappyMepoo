@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Flappy Meepo — botapp</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      background: #10131c;
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      color: #eef2ff;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #stage {
+      position: relative;
+      width: 480px;
+      max-width: 100%;
+      aspect-ratio: 480 / 640;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .55);
+    }
+
+    #game {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: manipulation;
+    }
+
+    #overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 24px;
+      text-align: center;
+      background: rgba(8, 11, 20, .62);
+      backdrop-filter: blur(3px);
+      transition: opacity .18s ease;
+    }
+
+    #overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #overlay-title {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: .5px;
+    }
+
+    #overlay-text {
+      margin: 0;
+      font-size: 17px;
+      opacity: .85;
+      line-height: 1.45;
+    }
+
+    #overlay-btn {
+      margin-top: 8px;
+      padding: 13px 30px;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0b1220;
+      background: #ffd23f;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    #overlay-btn:hover {
+      background: #ffe27a;
+    }
+
+    #overlay-btn:active {
+      transform: translateY(1px);
+    }
+
+    #status {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 12px;
+      font-size: 13px;
+      text-align: center;
+      background: rgba(8, 11, 20, .72);
+      min-height: 33px;
+    }
+
+    #status:empty {
+      display: none;
+    }
+
+    #hint {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: .5;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <div id="stage">
+      <canvas id="game" width="480" height="640"></canvas>
+      <div id="overlay">
+        <h1 id="overlay-title">Flappy Meepo</h1>
+        <p id="overlay-text">Клик, тап или Пробел — взмах лопатой.<br>Пролетай между трубами.</p>
+        <button id="overlay-btn" type="button">Играть</button>
+      </div>
+      <div id="status"></div>
+    </div>
+    <div id="hint">botapp · локальный запуск</div>
+  </div>
+  <script src="game.js"></script>
+</body>
+
+</html>

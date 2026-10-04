@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Защита ВКР — Telegram-бот со встроенной игрой</title>
+  <style>
+    :root {
+      --ink: #15181f;
+      --muted: #5d6675;
+      --line: #e3e6ec;
+      --accent: #1f5fd0;
+      --accent2: #c07a12;
+      --soft: #f5f7fb;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: #eef0f4;
+      color: var(--ink);
+      font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif
+    }
+
+    .deck {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 26px;
+      padding: 28px 16px 60px
+    }
+
+    .hint {
+      max-width: 1280px;
+      width: 100%;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.6
+    }
+
+    .slide {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(20, 25, 40, .09);
+      overflow: hidden;
+      padding: 64px 76px 72px;
+      display: flex;
+      flex-direction: column
+    }
+
+    h1 {
+      font-size: 46px;
+      line-height: 1.18;
+      margin: 0 0 18px;
+      letter-spacing: -.4px
+    }
+
+    h2 {
+      font-size: 38px;
+      line-height: 1.2;
+      margin: 0 0 26px;
+      letter-spacing: -.3px
+    }
+
+    h2::after {
+      content: "";
+      display: block;
+      width: 76px;
+      height: 5px;
+      background: var(--accent);
+      border-radius: 3px;
+      margin-top: 14px
+    }
+
+    .body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0
+    }
+
+    ul.bullets {
+      font-size: 25px;
+      line-height: 1.5;
+      margin: 0;
+      padding-left: 30px
+    }
+
+    ul.bullets li {
+      margin: 13px 0
+    }
+
+    ul.bullets li::marker {
+      color: var(--accent)
+    }
+
+    ul.bullets ul.sub {
+      font-size: 21px;
+      line-height: 1.45;
+      margin-top: 10px;
+      color: #3c4453
+    }
+
+    ul.bullets ul.sub li::marker {
+      color: var(--accent2)
+    }
+
+    b,
+    strong {
+      color: var(--accent)
+    }
+
+    .num {
+      position: absolute;
+      bottom: 22px;
+      right: 34px;
+      color: var(--muted);
+      font-size: 15px
+    }
+
+    .tag {
+      position: absolute;
+      bottom: 22px;
+      left: 76px;
+      color: #9aa2b1;
+      font-size: 14px;
+      letter-spacing: .3px
+    }
+
+    /* титульный */
+    .cover {
+      justify-content: center;
+      background: linear-gradient(135deg, #10203c 0%, #1f3f7a 55%, #2a5ea8 100%);
+      color: #fff;
+      padding: 70px 90px
+    }
+
+    .cover h1 {
+      font-size: 50px;
+      margin-bottom: 26px;
+      max-width: 1000px
+    }
+
+    .cover .lead {
+      font-size: 23px;
+      color: #c8d6f0;
+      line-height: 1.5;
+      max-width: 900px
+    }
+
+    .cover .meta {
+      margin-top: 52px;
+      font-size: 20px;
+      color: #eaf0fb;
+      line-height: 1.7
+    }
+
+    .cover .meta span {
+      color: #9db4dd
+    }
+
+    .cover .num,
+    .cover .tag {
+      color: #8fa6cf
+    }
+
+    /* скриншоты */
+    .shot {
+      display: flex;
+      gap: 26px;
+      align-items: center;
+      justify-content: center;
+      height: 100%
+    }
+
+    .shot img {
+      max-height: 470px;
+      border-radius: 10px;
+      box-shadow: 0 8px 26px rgba(15, 20, 35, .28);
+      border: 1px solid #cfd5e0
+    }
+
+    .shot .cap {
+      font-size: 19px;
+      color: var(--muted);
+      max-width: 330px;
+      line-height: 1.55
+    }
+
+    .shot .cap b {
+      display: block;
+      color: var(--ink);
+      font-size: 22px;
+      margin-bottom: 10px
+    }
+
+    /* схема архитектуры */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 20px
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap
+    }
+
+    .box {
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 16px;
+      background: var(--soft);
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .box.alt {
+      border-color: var(--accent2);
+      background: #fdf6e8
+    }
+
+    .box.plain {
+      border-color: #c6ccd8;
+      background: #fff;
+      font-weight: 500
+    }
+
+    .arrow {
+      color: var(--accent);
+      font-size: 22px;
+      font-weight: 700
+    }
+
+    .rowlabel {
+      width: 112px;
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 600;
+      flex: none
+    }
+
+    .flownote {
+      margin-top: 20px;
+      font-size: 19px;
+      color: var(--muted);
+      line-height: 1.5
+    }
+
+    /* цифры */
+    .kpi {
+      display: flex;
+      gap: 30px;
+      margin: 6px 0 26px
+    }
+
+    .kpi div {
+      flex: 1;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center
+    }
+
+    .kpi .v {
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1
+    }
+
+    .kpi .l {
+      font-size: 18px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.35
+    }
+
+    /* две колонки */
+    .cols {
+      display: flex;
+      gap: 34px
+    }
+
+    .cols>div {
+      flex: 1
+    }
+
+    .cols h3 {
+      font-size: 23px;
+      margin: 0 0 14px;
+      color: var(--accent2)
+    }
+
+    .cols ul {
+      font-size: 21px;
+      line-height: 1.5;
+      padding-left: 26px;
+      margin: 0
+    }
+
+    .cols ul li {
+      margin: 9px 0
+    }
+
+    @media print {
+      body {
+        background: #fff
+      }
+
+      .deck {
+        gap: 0;
+        padding: 0
+      }
+
+      .hint {
+        display: none
+      }
+
+      .slide {
+        page-break-after: always;
+        break-after: page;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0;
+        width: 1280px;
+        height: 720px
+      }
+
+      @page {
+        size: 1280px 720px;
+        margin: 0
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="deck">
+
+    <p class="hint">Экспорт в PDF: Ctrl + P → «Сохранить как PDF» → размер страницы «Альбомная», поля «Нет».
+      Каждый слайд печатается на отдельной странице.</p>
+
+    <!-- 1 -->
+    <section class="slide cover">
+      <h1>Разработка Telegram-бота со встроенной мини-игрой и системой учёта результатов</h1>
+      <p class="lead">Выпускная квалификационная работа</p>
+      <div class="meta">
+        <div>Выполнил: <span>Батурин Валерий Максимович</span></div>
+      </div>
+      <div class="tag">Защита ВКР</div>
+      <div class="num">1 / 13</div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide">
+      <h2>Актуальность</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li>Мессенджеры стали платформой: внутри чата работают магазины, банки, службы доставки.</li>
+          <li>Telegram даёт штатные инструменты для встраивания приложений прямо в чат — но в учебных
+            проектах их возможности почти не раскрываются.</li>
+          <li>Задача с мини-игрой требует <b>всего цикла разработки</b>: клиент, сервер, хранение данных.</li>
+          <li>Работа проверяет на практике, какого результата можно достичь <b>без сторонних библиотек</b>.</li>
+        </ul>
+      </div>
+      <div class="num">2 / 13</div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide">
+      <h2>Цель работы и выбор платформы</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li><b>Цель:</b> сделать приложение, которое работает прямо в мессенджере,
+            и вести учёт результатов его пользователей.</li>
+          <li><b>Я выбрал Telegram-бота</b>, потому что это самый короткий путь от идеи до человека:
+            <ul class="sub">
+              <li>приложение не нужно скачивать — оно открывается прямо в чате;</li>
+              <li>не нужна регистрация — Telegram уже знает, кто играет;</li>
+              <li>не нужен свой клиент — платформа даёт готовые инструменты.</li>
+            </ul>
+          </li>
+          <li><b>Задачи:</b> изучить возможности Bot API, спроектировать взаимодействие бота,
+            клиента и сервера, реализовать хранение результатов, протестировать систему.</li>
+        </ul>
+      </div>
+      <div class="num">3 / 13</div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide">
+      <h2>Что разработано</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li><b>/play</b> — присылает кнопку, открывающую игру внутри Telegram.</li>
+          <li><b>/top</b> — таблица лидеров: место, рекорд и число попыток.</li>
+          <li><b>/start</b> и <b>/help</b> — приветствие с кнопкой запуска и справка по командам.</li>
+          <li>Результат сохраняется <b>автоматически</b>: после проигрыша бот сам сообщает место и личный рекорд.</li>
+          <li>Регистрация и ввод данных не нужны — игрок опознаётся по идентификатору Telegram.</li>
+        </ul>
+      </div>
+      <div class="num">4 / 13</div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide">
+      <h2>Как это выглядит</h2>
+      <div class="body">
+        <div class="shot">
+          <img src="img/game-trusy.png" alt="Игровой процесс">
+          <div class="cap">
+            <b>Игра внутри Telegram</b>
+            Открывается по кнопке бота в отдельном окне. Управление — тап или пробел.
+            Препятствия, земля и фон отрисованы средствами HTML5 Canvas.
+          </div>
+        </div>
+      </div>
+      <div class="num">5 / 13</div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide">
+      <h2>Архитектура системы</h2>
+      <div class="body">
+        <div class="flow">
+          <div class="row">
+            <div class="rowlabel">Запуск</div>
+            <div class="box plain">Пользователь</div>
+            <div class="arrow">→</div>
+            <div class="box">бот, модуль bot.py</div>
+            <div class="arrow">→</div>
+            <div class="box plain">Telegram Bot API</div>
+            <div class="arrow">→</div>
+            <div class="box alt">кнопка Web App</div>
+            <div class="arrow">→</div>
+            <div class="box plain">игра открывается</div>
+          </div>
+          <div class="row">
+            <div class="rowlabel">Результат</div>
+            <div class="box plain">игра на Canvas</div>
+            <div class="arrow">→</div>
+            <div class="box">POST /score</div>
+            <div class="arrow">→</div>
+            <div class="box">веб-сервер, server.py</div>
+            <div class="arrow">→</div>
+            <div class="box">хранилище, storage.py</div>
+            <div class="arrow">→</div>
+            <div class="box alt">data/scores.json</div>
+          </div>
+        </div>
+        <p class="flownote">Три независимых модуля на Python. Игровой клиент — одностраничное приложение
+          на HTML5 Canvas. Обмен между ними — по протоколу HTTP; для работы кнопки используется HTTPS.</p>
+      </div>
+      <div class="num">6 / 13</div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide">
+      <h2>Технологии</h2>
+      <div class="body">
+        <div class="cols">
+          <div>
+            <h3>Серверная часть</h3>
+            <ul>
+              <li>Python 3.14</li>
+              <li><b>только стандартная библиотека</b>: urllib, http.server, json, threading</li>
+              <li>сторонних зависимостей нет</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Клиентская часть</h3>
+            <ul>
+              <li>HTML5 Canvas, JavaScript, CSS</li>
+              <li>Telegram Web App</li>
+              <li>хранение данных — JSON</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="num">7 / 13</div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide">
+      <h2>Надёжность и безопасность</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li><b>Атомарная запись:</b> результат пишется во временный файл и лишь затем заменяет основной —
+            данные не теряются при одновременных запросах.</li>
+          <li><b>Проверка входных данных:</b> контролируются тип и диапазон счёта, размер и формат запроса.</li>
+          <li><b>Секреты вне кода:</b> токен бота хранится только в переменной окружения.</li>
+          <li><b>Минимум поверхности атаки:</b> сервер принимает соединения лишь с локальных адресов.</li>
+          <li>Персональные данные не хранятся — только числовой идентификатор игрока.</li>
+        </ul>
+      </div>
+      <div class="num">8 / 13</div>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide">
+      <h2>Тестирование</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li>Разработано <b>22 автоматических теста</b> на встроенном модуле unittest.</li>
+          <li>Проверены хранилище, валидация данных и формирование сообщений бота.</li>
+          <li><b>Интеграционный тест</b> эмулирует сервер Telegram на локальной машине и прогоняет полный
+            путь команды — от входящего сообщения до ответа.</li>
+          <li>Логика тестируется без обращения к внешней сети: тесты не зависят от интернета.</li>
+          <li>Интерфейс игры дополнительно проверен в браузере.</li>
+        </ul>
+      </div>
+      <div class="num">9 / 13</div>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide">
+      <h2>Апробация на реальных пользователях</h2>
+      <div class="body">
+        <div class="kpi">
+          <div>
+            <div class="v">6</div>
+            <div class="l">игроков в таблице результатов</div>
+          </div>
+          <div>
+            <div class="v">5</div>
+            <div class="l">из них — реальные аккаунты Telegram</div>
+          </div>
+          <div>
+            <div class="v">69</div>
+            <div class="l">сыгранных попыток</div>
+          </div>
+          <div>
+            <div class="v">54</div>
+            <div class="l">очка — лучший результат</div>
+          </div>
+        </div>
+        <ul class="bullets">
+          <li>Система проверена не в теории, а в работе с живыми пользователями.</li>
+          <li>Источник данных: файл результатов проекта, накопленный в ходе эксплуатации.</li>
+        </ul>
+      </div>
+      <div class="num">10 / 13</div>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide">
+      <h2>Практическая значимость</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li>Продемонстрирован полный цикл разработки: проектирование, клиент-серверное взаимодействие,
+            интеграция с внешним API, хранение данных, тестирование.</li>
+          <li>Решение <b>автономно</b>: развёртывание сводится к копированию папки, установка пакетов не нужна.</li>
+          <li>Подход переносим: на этой основе создаются опросы, викторины и учебные тренажёры в мессенджере.</li>
+          <li>Материалы работы применимы как учебный пример интеграции с Telegram Bot API.</li>
+        </ul>
+      </div>
+      <div class="num">11 / 13</div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide">
+      <h2>Ограничения и направления развития</h2>
+      <div class="body">
+        <div class="cols">
+          <div>
+            <h3>Ограничения</h3>
+            <ul>
+              <li>Результаты хранятся в файле — при росте нагрузки нужна база данных.</li>
+              <li>Для кнопки требуется HTTPS: при локальном запуске адрес туннеля меняется.</li>
+              <li>Нужен сетевой доступ к серверам Telegram.</li>
+              <li>Использован узнаваемый персонаж игры Dota 2 — при публичном распространении его следует заменить.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Развитие</h3>
+            <ul>
+              <li>Переход на базу данных.</li>
+              <li>Ограничение частоты запросов.</li>
+              <li>Расширенная статистика по игрокам.</li>
+              <li>Размещение на постоянном хостинге для работы круглосуточно.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="num">12 / 13</div>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide">
+      <h2>Вывод</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li>Цель работы <b>достигнута</b>: сделано приложение, которое работает прямо
+            в мессенджере, и ведётся учёт результатов его пользователей.</li>
+          <li>Система <b>протестирована</b> 22 автоматическими тестами и <b>проверена реальными
+              пользователями</b>.</li>
+          <li>Все задачи, поставленные в начале работы, решены.</li>
+        </ul>
+        <p class="flownote" style="font-size:26px;color:var(--ink);margin-top:34px">
+          Доклад окончен. Готов ответить на ваши вопросы.</p>
+      </div>
+      <div class="num">13 / 13</div>
+    </section>
+
+  </div>
+</body>
+
+</html>
